@@ -20,7 +20,7 @@ class ModuleInstaller extends LibraryInstaller {
 	public function install(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
 		parent::install($repo, $package);
 		
-		$this->io->write('INSTALL HOLERADIO');
+		$this->io->write('INSTALL HOLERADIO ');
 		$this->removeResources($package);
 		$this->installResources($package);
 	}
@@ -50,7 +50,7 @@ class ModuleInstaller extends LibraryInstaller {
 		parent::uninstall($repo, $package);
 
 		$this->io->write('UNINSTALL HOLERADIO');
-		$this->removeResources($target);
+		$this->removeResources($package);
 	}
 	
 	const N2N_MODULE_TYPE = 'n2n-module';
