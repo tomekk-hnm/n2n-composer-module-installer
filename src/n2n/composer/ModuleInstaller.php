@@ -93,14 +93,14 @@ class ModuleInstaller extends LibraryInstaller {
 	
 	public function moveBackResources(Package $package) {
 		$relEtcDirPath = $this->getRelEtcDirPath($package);
-		$mdlEtcOrigDirPath = $this->getVarOrigDirPath() . $relEtcDirPath;
+		$mdlEtcOrigDirPath = $this->getVarOrigDirPath($package) . $relEtcDirPath;
 		$mdlEtcDestDirPath = $this->getVarDestDirPath() . $relEtcDirPath;
 		if (is_dir($mdlEtcDestDirPath)) {
 			$this->filesystem->copyThenRemove($mdlEtcDestDirPath, $mdlEtcOrigDirPath);
 		}
 
 		$relAssetsDirPath = $this->getRelAssetsDirPath($package);
-		$mdlAssetsOrigDirPath = $this->getPublicOrigDirPath() . $relAssetsDirPath;
+		$mdlAssetsOrigDirPath = $this->getPublicOrigDirPath($package) . $relAssetsDirPath;
 		$mdlAssetsDestDirPath = $this->getPublicDestDirPath() . $relAssetsDirPath;
 		if (is_dir($mdlAssetsDestDirPath)) {
 			$this->filesystem->copyThenRemove($mdlAssetsDestDirPath, $mdlAssetsOrigDirPath);
@@ -188,23 +188,23 @@ class ModuleInstaller extends LibraryInstaller {
 				. $package->getPrettyName() . '. Reason: ' . $dirName . ' directory missing: ' . $destDirPath);
 	}
 	
-	private function copy($source, $target) {
-        if (!is_dir($source)) {
-            copy($source, $target);
-            return;
-        }
+// 	private function copy($source, $target) {
+//         if (!is_dir($source)) {
+//             copy($source, $target);
+//             return;
+//         }
 
-        $it = new \RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
-        $ri = new \RecursiveIteratorIterator($it, RecursiveIteratorIterator::SELF_FIRST);
-        $this->ensureDirectoryExists($target);
+//         $it = new \RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
+//         $ri = new \RecursiveIteratorIterator($it, RecursiveIteratorIterator::SELF_FIRST);
+//         $this->ensureDirectoryExists($target);
 
-        foreach ($ri as $file) {
-            $targetPath = $target . DIRECTORY_SEPARATOR . $ri->getSubPathName();
-            if ($file->isDir()) {
-                $this->filesystem->ensureDirectoryExists($targetPath);
-            } else {
-                copy($file->getPathname(), $targetPath);
-            }
-        }
-	}
+//         foreach ($ri as $file) {
+//             $targetPath = $target . DIRECTORY_SEPARATOR . $ri->getSubPathName();
+//             if ($file->isDir()) {
+//                 $this->filesystem->ensureDirectoryExists($targetPath);
+//             } else {
+//                 copy($file->getPathname(), $targetPath);
+//             }
+//         }
+// 	}
 }
