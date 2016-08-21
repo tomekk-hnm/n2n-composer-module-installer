@@ -1,0 +1,25 @@
+{
+    "name": "n2n/n2n-module-composer-plugin",
+    "type": "composer-plugin",
+    "description": "n2n module installer plugin for composer",
+    "keywords": ["n2n", "module", "installer"],
+    "homepage": "http://n2n.rocks/",
+    "license": "GNU LGPL",
+    "authors": [
+        {
+            "name": "Andreas von Burg",
+            "email": "a@von-burg.net",
+            "homepage": "http://www.von-burg.net",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "composer-plugin-api": "^1.0"
+    },
+    "require-dev": {
+        "composer/composer": "1.*"
+    },
+    "extra": {
+        "class": "n2n\\composer\\ModulePlugin"
+    }
+}
