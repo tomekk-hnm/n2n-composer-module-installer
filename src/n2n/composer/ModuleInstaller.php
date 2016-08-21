@@ -30,6 +30,10 @@ class ModuleInstaller extends LibraryInstaller {
 	 */
 	public function update(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $initial, 
 			\Composer\Package\PackageInterface $target) {
+
+		$this->io->write('PRE UPDATE HOLERADIO');
+		$this->moveBackResources($initial);
+				
 		parent::update($repo, $initial, $target);
 		
 		$this->io->write('UPDATE HOLERADIO');
@@ -87,15 +91,35 @@ class ModuleInstaller extends LibraryInstaller {
 		return DIRECTORY_SEPARATOR . self::ASSETS_DIR . DIRECTORY_SEPARATOR . $this->getModuleName($package);
 	}
 	
+	public function moveBackResources(Package $package) {
+		$relEtcDirPath = $this->getRelEtcDirPath($package);
+		$mdlEtcOrigDirPath = $this->getVarOrigDirPath() . $relEtcDirPath;
+		$mdlEtcDestDirPath = $this->getVarDestDirPath() . $relEtcDirPath;
+		if (is_dir($mdlEtcDestDirPath)) {
+			$this->filesystem->copyThenRemove($mdlEtcDestDirPath, $mdlEtcOrigDirPath);
+		}
+
+		$relAssetsDirPath = $this->getRelAssetsDirPath($package);
+		$mdlAssetsOrigDirPath = $this->getPublicOrigDirPath() . $relAssetsDirPath;
+		$mdlAssetsDestDirPath = $this->getPublicDestDirPath() . $relAssetsDirPath;
+		if (is_dir($mdlAssetsDestDirPath)) {
+			$this->filesystem->copyThenRemove($mdlAssetsDestDirPath, $mdlAssetsOrigDirPath);
+		}
+	}
+	
 	private function removeResources(Package $package) {
 		$mdlEtcDestDirPath = $this->getVarDestDirPath() . $this->getRelEtcDirPath($package);
 		if (is_dir($mdlEtcDestDirPath)) {
-			$this->filesystem->removeDirectory($mdlEtcDestDirPath);	
+			try {
+				$this->filesystem->removeDirectory($mdlEtcDestDirPath);
+			} catch (\RuntimeException $e) {}
 		}
 		
 		$mdlAssetsDestDirPath = $this->getPublicDestDirPath() . $this->getRelAssetsDirPath($package);
 		if (is_dir($mdlAssetsDestDirPath)) {
-			$this->filesystem->removeDirectory($mdlAssetsDestDirPath);
+			try {
+				$this->filesystem->removeDirectory($mdlAssetsDestDirPath);
+			} catch (\RuntimeException $e) {}	
 		}
 	}
 	
@@ -127,7 +151,7 @@ class ModuleInstaller extends LibraryInstaller {
 		$publicOrigDirPath = $this->getPublicOrigDirPath($package);
 		$publicDestDirPath = $this->getPublicDestDirPath();
 	
-		$this->valOrigDirPath($publicOrigDirPath, $package);
+// 		$this->valOrigDirPath($publicOrigDirPath, $package);
 	
 		$relAssetsDirPath = $this->getRelAssetsDirPath($package);
 		$mdlAssetsOrigDirPath = $publicOrigDirPath . $relAssetsDirPath;
@@ -146,7 +170,7 @@ class ModuleInstaller extends LibraryInstaller {
 		if (is_dir($origDirPath)) return;
 	
 		$dirName = pathinfo($origDirPath, PATHINFO_BASENAME);
-		throw new CorruptedN2nModuleException($package->getPrettyName() . ' has type \'' . $self::N2N_MODULE_TYPE
+		throw new CorruptedN2nModuleException($package->getPrettyName() . ' has type \'' . self::N2N_MODULE_TYPE
 				. '\' but contains no ' . $dirName . ' directory: ' . $origDirPath);
 	}
 	
@@ -164,4 +188,23 @@ class ModuleInstaller extends LibraryInstaller {
 				. $package->getPrettyName() . '. Reason: ' . $dirName . ' directory missing: ' . $destDirPath);
 	}
 	
+	private function copy($source, $target) {
+        if (!is_dir($source)) {
+            copy($source, $target);
+            return;
+        }
+
+        $it = new \RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
+        $ri = new \RecursiveIteratorIterator($it, RecursiveIteratorIterator::SELF_FIRST);
+        $this->ensureDirectoryExists($target);
+
+        foreach ($ri as $file) {
+            $targetPath = $target . DIRECTORY_SEPARATOR . $ri->getSubPathName();
+            if ($file->isDir()) {
+                $this->filesystem->ensureDirectoryExists($targetPath);
+            } else {
+                copy($file->getPathname(), $targetPath);
+            }
+        }
+	}
 }
