@@ -156,20 +156,12 @@ class ModuleInstaller extends LibraryInstaller {
 		$dirName = pathinfo($destDirPath, PATHINFO_BASENAME);
 	
 		$question = $package->getPrettyName() . ' is an ' . self::N2N_MODULE_TYPE
-		. ' and requires a ' . $dirName . ' directory (' . $destDirPath
-		. '). Do you want to skip the installation of the ' . $dirName . ' files? [y,n] (default: y): ';
+				. ' and requires a ' . $dirName . ' directory (' . $destDirPath
+				. '). Do you want to skip the installation of the ' . $dirName . ' files? [y,n] (default: y): ';
 		if ($this->io->askConfirmation($question)) return false;
 	
 		throw new N2nModuleInstallationException('Failed to install ' . self::N2N_MODULE_TYPE . ' '
 				. $package->getPrettyName() . '. Reason: ' . $dirName . ' directory missing: ' . $destDirPath);
 	}
-	
-}
-
-class CorruptedN2nModuleException extends \RuntimeException {
-	
-}
-
-class N2nModuleInstallationException extends \RuntimeException {
 	
 }
