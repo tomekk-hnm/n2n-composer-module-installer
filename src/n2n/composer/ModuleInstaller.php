@@ -47,6 +47,9 @@ class ModuleInstaller extends LibraryInstaller {
 	 * @see \Composer\Installer\InstallerInterface::uninstall()
 	 */
 	public function uninstall(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
+		$this->io->write('PRE UNINSTALL HOLERADIO');
+		$this->moveBackResources($package);
+		
 		parent::uninstall($repo, $package);
 
 		$this->io->write('UNINSTALL HOLERADIO');
