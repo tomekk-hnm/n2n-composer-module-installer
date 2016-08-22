@@ -20,7 +20,7 @@ class ModuleInstaller extends LibraryInstaller {
 	public function install(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
 		parent::install($repo, $package);
 		
-		$this->io->write('INSTALL HOLERADIO ');
+		$this->io->write('INSTALL HOLERADIO');
 		$this->removeResources($package);
 		$this->installResources($package);
 	}
