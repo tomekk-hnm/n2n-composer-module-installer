@@ -23,7 +23,7 @@
     },
     "autoload": {
 	    "psr-4": {
-	      	"n2n\\composer\\": "src/n2n/composer"
+	      	"n2n\\composer\\module\\": "src/n2n/composer/module"
 	    }
 	}
 }
