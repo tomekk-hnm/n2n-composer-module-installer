@@ -1,5 +1,5 @@
 <?php
-namespace n2n\composer;
+namespace n2n\composer\module;
 
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\Package;
@@ -20,7 +20,6 @@ class ModuleInstaller extends LibraryInstaller {
 	public function install(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
 		parent::install($repo, $package);
 		
-		$this->io->write('INSTALL HOLERADIO');
 		$this->removeResources($package);
 		$this->installResources($package);
 	}
@@ -31,13 +30,10 @@ class ModuleInstaller extends LibraryInstaller {
 	public function update(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $initial, 
 			\Composer\Package\PackageInterface $target) {
 
-		$this->io->write('PRE UPDATE HOLERADIO');
 		$this->moveBackResources($initial);
 				
 		parent::update($repo, $initial, $target);
 		
-		$this->io->write('UPDATE HOLERADIO');
-		$this->removeResources($initial);
 		$this->removeResources($target);
 		$this->installResources($target);
 	}
@@ -47,13 +43,9 @@ class ModuleInstaller extends LibraryInstaller {
 	 * @see \Composer\Installer\InstallerInterface::uninstall()
 	 */
 	public function uninstall(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
-		$this->io->write('PRE UNINSTALL HOLERADIO');
 		$this->moveBackResources($package);
 		
 		parent::uninstall($repo, $package);
-
-		$this->io->write('UNINSTALL HOLERADIO');
-		$this->removeResources($package);
 	}
 	
 	const N2N_MODULE_TYPE = 'n2n-module';

@@ -1,5 +1,5 @@
 <?php
-namespace n2n\composer;
+namespace n2n\composer\module;
 
 use Composer\Plugin\PluginInterface;
 use Composer\IO\IOInterface;

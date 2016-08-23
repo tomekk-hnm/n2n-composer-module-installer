@@ -1,5 +1,5 @@
 {
-    "name": "n2n/n2n-module-composer-plugin",
+    "name": "n2n/n2n-composer-module-installer",
     "type": "composer-plugin",
     "description": "n2n module installer plugin for composer",
     "keywords": ["n2n", "module", "installer"],
@@ -9,8 +9,7 @@
         {
             "name": "Andreas von Burg",
             "email": "a@von-burg.net",
-            "homepage": "http://www.von-burg.net",
-            "role": "Developer"
+            "homepage": "http://www.von-burg.net"
         }
     ],
     "require": {
@@ -20,7 +19,7 @@
         "composer/composer": "1.*"
     },
     "extra": {
-        "class": "n2n\\composer\\ModulePlugin"
+        "class": "n2n\\composer\\module\\ModulePlugin"
     },
     "autoload": {
 	    "psr-4": {
