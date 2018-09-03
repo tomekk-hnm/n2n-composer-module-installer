@@ -49,6 +49,7 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	const N2N_MODULE_TYPE = 'n2n-module';
+	const N2N_TMPL_MODULE_TYPE = 'n2n-tmpl-module';
 	const VAR_ORIG_DIR = 'src' . DIRECTORY_SEPARATOR . 'var';
 	const VAR_DEST_DIR = '..' . DIRECTORY_SEPARATOR . 'var';
 	const ETC_DIR = 'etc';
