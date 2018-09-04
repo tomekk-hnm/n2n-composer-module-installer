@@ -27,7 +27,6 @@ class ModuleInstaller extends LibraryInstaller {
 		
 		if ($package->getType() === self::N2N_TMPL_MODULE_TYPE) {
 		    $this->moveApp($package);
-		    $this->removePackageInJson($package);
 		}
 		
 	}
@@ -157,30 +156,13 @@ class ModuleInstaller extends LibraryInstaller {
  	    $mdlAppOrigDirPath = $appOrigDirPath . $relAppDirPath;
  	    $mdlAppDestDirPath = $appDestDirPath . $relAppDirPath;
  	    
- 	    if (!is_dir($mdlAppOrigDirPath)) {
+ 	    if (!is_dir($mdlAppOrigDirPath) || is_dir($mdlAppDestDirPath)) {
  	        return;
  	    }
 	    
 	    if ($this->valDestDirPath($appDestDirPath, $package)) {
 	        $this->filesystem->copyThenRemove($appOrigDirPath, $appDestDirPath);
 	    }
-	}
-	
-	private function removePackageInJson(Package $package) {
-	    $composerJsonFile = new JsonFile(Factory::getComposerFile());
-	    
-	    $jsonData = $composerJsonFile->read();
-	    $packageName = $package->getName();
-	    
-	    if (isset($jsonData['require']) && isset($jsonData['require'][$packageName])) {
-	        unset($jsonData['require'][$packageName]);
-	    }
-	    
-	    if (isset($jsonData['require-dev']) && isset($jsonData['require-dev'][$packageName])) {
-	        unset($jsonData['require-dev'][$packageName]);
-	    }
-	    
-	    $composerJsonFile->write($jsonData);
 	}
 	
 	private function moveEtc(Package $package) {
