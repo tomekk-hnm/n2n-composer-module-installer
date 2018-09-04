@@ -27,6 +27,7 @@ class ModuleInstaller extends LibraryInstaller {
 		
 		if ($package->getType() === self::N2N_TMPL_MODULE_TYPE) {
 		    $this->moveApp($package);
+		    $this->removePackageInJson($package);
 		}
 		
 	}
