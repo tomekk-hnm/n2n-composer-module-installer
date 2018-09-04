@@ -3,8 +3,6 @@ namespace n2n\composer\module;
 
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\Package;
-use Composer\Json\JsonFile;
-use Composer\Factory;
 
 class ModuleInstaller extends LibraryInstaller {
 	/**
@@ -25,10 +23,6 @@ class ModuleInstaller extends LibraryInstaller {
 		$this->removeResources($package);
 		$this->installResources($package);
 		
-		if ($package->getType() === self::N2N_TMPL_MODULE_TYPE) {
-		    $this->moveApp($package);
-		}
-		
 	}
 	/**
 	 * {@inheritDoc}
@@ -37,7 +31,7 @@ class ModuleInstaller extends LibraryInstaller {
 	public function update(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $initial, 
 			\Composer\Package\PackageInterface $target) {
 
-		$this->moveBackResources($initial);
+    	$this->moveBackResources($initial);
 				
 		parent::update($repo, $initial, $target);
 		
@@ -50,7 +44,7 @@ class ModuleInstaller extends LibraryInstaller {
 	 * @see \Composer\Installer\InstallerInterface::uninstall()
 	 */
 	public function uninstall(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
-		$this->moveBackResources($package);
+    	$this->moveBackResources($package);
 		
 		parent::uninstall($repo, $package);
 	}
@@ -110,6 +104,8 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	public function moveBackResources(Package $package) {
+		if ($package->getType() === self::N2N_TMPL_MODULE_TYPE) return;
+		
 		$relEtcDirPath = $this->getRelEtcDirPath($package);
 		$mdlEtcOrigDirPath = $this->getVarOrigDirPath($package) . $relEtcDirPath;
 		$mdlEtcDestDirPath = $this->getVarDestDirPath() . $relEtcDirPath;
@@ -126,6 +122,8 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	private function removeResources(Package $package) {
+		if ($package->getType() === self::N2N_TMPL_MODULE_TYPE) return;
+		
 		$mdlEtcDestDirPath = $this->getVarDestDirPath() . $this->getRelEtcDirPath($package);
 		if (is_dir($mdlEtcDestDirPath)) {
 			try {
@@ -144,9 +142,12 @@ class ModuleInstaller extends LibraryInstaller {
 	private function installResources(Package $package) {
 		$this->moveEtc($package);
 		$this->moveAssets($package);
+		$this->moveApp($package);
 	}
 	
 	private function moveApp(Package $package) {
+		if ($package->getType() === self::N2N_MODULE_TYPE) return;
+		
  	    $appOrigDirPath = $this->getAppOrigDirPath($package);
  	    $appDestDirPath = $this->getAppDestDirPath();
 	    
@@ -175,7 +176,9 @@ class ModuleInstaller extends LibraryInstaller {
 		$mdlEtcOrigDirPath = $varOrigDirPath . $relEtcDirPath;
 		$mdlEtcDestDirPath = $varDestDirPath . $relEtcDirPath;
 	
-		if (!is_dir($mdlEtcOrigDirPath)) {
+		//don't move if etc folder exists and 
+		if (!is_dir($mdlEtcOrigDirPath) || 
+				($package->getType() === self::N2N_TMPL_MODULE_TYPE && is_dir($mdlEtcDestDirPath))) {
 			return;
 		}
 	
@@ -194,7 +197,8 @@ class ModuleInstaller extends LibraryInstaller {
 		$mdlAssetsOrigDirPath = $publicOrigDirPath . $relAssetsDirPath;
 		$mdlAssetsDestDirPath = $publicDestDirPath . $relAssetsDirPath;
 	
-		if (!is_dir($mdlAssetsOrigDirPath)) {
+		if (!is_dir($mdlAssetsOrigDirPath) 
+				|| ($package->getType() === self::N2N_TMPL_MODULE_TYPE && is_dir($mdlAssetsDestDirPath))) {
 			return;
 		}
 	
