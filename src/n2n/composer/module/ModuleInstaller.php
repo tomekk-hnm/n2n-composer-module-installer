@@ -10,7 +10,7 @@ class ModuleInstaller extends LibraryInstaller {
 	 * @see \Composer\Installer\InstallerInterface::supports()
 	 */
 	public function supports($packageType) {
-		return $packageType == self::N2N_MODULE_TYPE;
+		return $packageType == self::N2N_MODULE_TYPE || $packageType == self::N2N_TMPL_MODULE_TYPE; 
 	}
 
 	/**
@@ -22,6 +22,11 @@ class ModuleInstaller extends LibraryInstaller {
 		
 		$this->removeResources($package);
 		$this->installResources($package);
+		
+		if ($package->getType() === self::N2N_TMPL_MODULE_TYPE) {
+		    $this->moveApp($package);
+		}
+		
 	}
 	/**
 	 * {@inheritDoc}
@@ -122,6 +127,26 @@ class ModuleInstaller extends LibraryInstaller {
 	private function installResources(Package $package) {
 		$this->moveEtc($package);
 		$this->moveAssets($package);
+	}
+	
+	private function moveApp(Package $package) {
+	    var_dump($package);
+// 	    $varOrigDirPath = $this->getVarOrigDirPath($package);
+// 	    $varDestDirPath = $this->getVarDestDirPath();
+	    
+// 	    $this->valOrigDirPath($varOrigDirPath, $package);
+	    
+// 	    $relEtcDirPath = $this->getRelEtcDirPath($package);
+// 	    $mdlEtcOrigDirPath = $varOrigDirPath . $relEtcDirPath;
+// 	    $mdlEtcDestDirPath = $varDestDirPath . $relEtcDirPath;
+	    
+// 	    if (!is_dir($mdlEtcOrigDirPath)) {
+// 	        return;
+// 	    }
+	    
+// 	    if ($this->valDestDirPath($varDestDirPath, $package)) {
+// 	        $this->filesystem->copyThenRemove($mdlEtcOrigDirPath, $mdlEtcDestDirPath);
+// 	    }
 	}
 	
 	private function moveEtc(Package $package) {
