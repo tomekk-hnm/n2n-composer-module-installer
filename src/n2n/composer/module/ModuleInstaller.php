@@ -80,7 +80,7 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	private function getRelAppDirPath(Package $package) {
-		return DIRECTORY_SEPARATOR . $this->getModuleName($package);
+	    return DIRECTORY_SEPARATOR . str_replace('-', DIRECTORY_SEPARATOR, $this->getModuleName($package));
 	}
 	
 	private function getVarOrigDirPath(Package $package) {
@@ -151,29 +151,35 @@ class ModuleInstaller extends LibraryInstaller {
  	    $appDestDirPath = $this->getAppDestDirPath();
 	    
  	    $this->valOrigDirPath($appOrigDirPath, $package);
-	    
- 	    if (!is_dir($appOrigDirPath)) {
-	        return;
-	    }
+ 	    
+ 	    $relAppDirPath = $this->getRelAppDirPath($package);
+ 	    $mdlAppOrigDirPath = $appOrigDirPath . $relAppDirPath;
+ 	    $mdlAppDestDirPath = $appDestDirPath . $relAppDirPath;
+ 	    
+ 	    if (!is_dir($mdlAppOrigDirPath)) {
+ 	        return;
+ 	    }
 	    
 	    if ($this->valDestDirPath($appDestDirPath, $package)) {
 	        $this->filesystem->copyThenRemove($appOrigDirPath, $appDestDirPath);
-	        
-	        $composerJsonFile = new JsonFile(Factory::getComposerFile());
-	        
-	        $jsonData = $composerJsonFile->read();
-	        $packageName = $package->getName();
-	        
-	        if (isset($jsonData['require']) && isset($jsonData['require'][$packageName])) {
-	            unset($jsonData['require'][$packageName]);
-	        }
-	        
-	        if (isset($jsonData['require-dev']) && isset($jsonData['require-dev'][$packageName])) {
-	            unset($jsonData['require-dev'][$packageName]);
-	        }
-	        
-	        $composerJsonFile->write($jsonData);
 	    }
+	}
+	
+	private function removePackageInJson(Package $package) {
+	    $composerJsonFile = new JsonFile(Factory::getComposerFile());
+	    
+	    $jsonData = $composerJsonFile->read();
+	    $packageName = $package->getName();
+	    
+	    if (isset($jsonData['require']) && isset($jsonData['require'][$packageName])) {
+	        unset($jsonData['require'][$packageName]);
+	    }
+	    
+	    if (isset($jsonData['require-dev']) && isset($jsonData['require-dev'][$packageName])) {
+	        unset($jsonData['require-dev'][$packageName]);
+	    }
+	    
+	    $composerJsonFile->write($jsonData);
 	}
 	
 	private function moveEtc(Package $package) {
