@@ -162,14 +162,14 @@ class ModuleInstaller extends LibraryInstaller {
 	        $composerJsonFile = new JsonFile(Factory::getComposerFile());
 	        
 	        $jsonData = $composerJsonFile->read();
-	        $moduleName = $this->getModuleName($package);
+	        $packageName = $package->getName();
 	        
-	        if (isset($jsonData['require']) && isset($jsonData['require'][$moduleName])) {
-	            unset($jsonData['require'][$moduleName]);
+	        if (isset($jsonData['require']) && isset($jsonData['require'][$packageName])) {
+	            unset($jsonData['require'][$packageName]);
 	        }
 	        
-	        if (isset($jsonData['require-dev']) && isset($jsonData['require-dev'][$moduleName])) {
-	            unset($jsonData['require-dev'][$moduleName]);
+	        if (isset($jsonData['require-dev']) && isset($jsonData['require-dev'][$packageName])) {
+	            unset($jsonData['require-dev'][$packageName]);
 	        }
 	        
 	        $composerJsonFile->write($jsonData);
