@@ -3,6 +3,8 @@ namespace n2n\composer\module;
 
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\Package;
+use Composer\Json\JsonFile;
+use Composer\Factory;
 
 class ModuleInstaller extends LibraryInstaller {
 	/**
@@ -55,6 +57,8 @@ class ModuleInstaller extends LibraryInstaller {
 	
 	const N2N_MODULE_TYPE = 'n2n-module';
 	const N2N_TMPL_MODULE_TYPE = 'n2n-tmpl-module';
+	const APP_ORIG_DIR = 'src' . DIRECTORY_SEPARATOR . 'app';
+	const APP_DEST_DIR = '..' . DIRECTORY_SEPARATOR . 'app';
 	const VAR_ORIG_DIR = 'src' . DIRECTORY_SEPARATOR . 'var';
 	const VAR_DEST_DIR = '..' . DIRECTORY_SEPARATOR . 'var';
 	const ETC_DIR = 'etc';
@@ -64,6 +68,19 @@ class ModuleInstaller extends LibraryInstaller {
 	
 	private function getModuleName(Package $package) {
 		return pathinfo($this->getInstallPath($package), PATHINFO_BASENAME);
+	}
+	
+	private function getAppOrigDirPath(Package $package) {
+		return $this->filesystem->normalizePath($this->getInstallPath($package) . DIRECTORY_SEPARATOR 
+				. self::APP_ORIG_DIR);
+	}
+	
+	private function getAppDestDirPath() {
+		return $this->filesystem->normalizePath($this->vendorDir . DIRECTORY_SEPARATOR . self::APP_DEST_DIR);
+	}
+	
+	private function getRelAppDirPath(Package $package) {
+		return DIRECTORY_SEPARATOR . $this->getModuleName($package);
 	}
 	
 	private function getVarOrigDirPath(Package $package) {
@@ -130,23 +147,33 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	private function moveApp(Package $package) {
-	    var_dump($package);
-// 	    $varOrigDirPath = $this->getVarOrigDirPath($package);
-// 	    $varDestDirPath = $this->getVarDestDirPath();
+ 	    $appOrigDirPath = $this->getAppOrigDirPath($package);
+ 	    $appDestDirPath = $this->getAppDestDirPath();
 	    
-// 	    $this->valOrigDirPath($varOrigDirPath, $package);
+ 	    $this->valOrigDirPath($appOrigDirPath, $package);
 	    
-// 	    $relEtcDirPath = $this->getRelEtcDirPath($package);
-// 	    $mdlEtcOrigDirPath = $varOrigDirPath . $relEtcDirPath;
-// 	    $mdlEtcDestDirPath = $varDestDirPath . $relEtcDirPath;
+ 	    if (!is_dir($appOrigDirPath)) {
+	        return;
+	    }
 	    
-// 	    if (!is_dir($mdlEtcOrigDirPath)) {
-// 	        return;
-// 	    }
-	    
-// 	    if ($this->valDestDirPath($varDestDirPath, $package)) {
-// 	        $this->filesystem->copyThenRemove($mdlEtcOrigDirPath, $mdlEtcDestDirPath);
-// 	    }
+	    if ($this->valDestDirPath($appDestDirPath, $package)) {
+	        $this->filesystem->copyThenRemove($appOrigDirPath, $appDestDirPath);
+	        
+	        $composerJsonFile = new JsonFile(Factory::getComposerFile());
+	        
+	        $jsonData = $composerJsonFile->read();
+	        $moduleName = $this->getModuleName($package);
+	        
+	        if (isset($jsonData['require']) && isset($jsonData['require'][$moduleName])) {
+	            unset($jsonData['require'][$moduleName]);
+	        }
+	        
+	        if (isset($jsonData['require-dev']) && isset($jsonData['require-dev'][$moduleName])) {
+	            unset($jsonData['require-dev'][$moduleName]);
+	        }
+	        
+	        $composerJsonFile->write($jsonData);
+	    }
 	}
 	
 	private function moveEtc(Package $package) {
