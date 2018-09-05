@@ -249,7 +249,7 @@ class ModuleInstaller extends LibraryInstaller {
 		if (is_dir($origDirPath)) return;
 	
 		$dirName = pathinfo($origDirPath, PATHINFO_BASENAME);
-		throw new CorruptedN2nModuleException($package->getPrettyName() . ' has type \'' . self::N2N_MODULE_TYPE
+		throw new CorruptedN2nModuleException($package->getPrettyName() . ' has type \'' . $package->getType()
 				. '\' but contains no ' . $dirName . ' directory: ' . $origDirPath);
 	}
 	
@@ -258,12 +258,12 @@ class ModuleInstaller extends LibraryInstaller {
 	
 		$dirName = pathinfo($destDirPath, PATHINFO_BASENAME);
 	
-		$question = $package->getPrettyName() . ' is an ' . self::N2N_MODULE_TYPE
+		$question = $package->getPrettyName() . ' is an ' . $package->getType()
 				. ' and requires a ' . $dirName . ' directory (' . $destDirPath
 				. '). Do you want to skip the installation of the ' . $dirName . ' files? [y,n] (default: y): ';
 		if ($this->io->askConfirmation($question)) return false;
 	
-		throw new N2nModuleInstallationException('Failed to install ' . self::N2N_MODULE_TYPE . ' '
+		throw new N2nModuleInstallationException('Failed to install ' . $package->getType() . ' '
 				. $package->getPrettyName() . '. Reason: ' . $dirName . ' directory missing: ' . $destDirPath);
 	}
 	
