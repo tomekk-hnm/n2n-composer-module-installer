@@ -157,13 +157,17 @@ class ModuleInstaller extends LibraryInstaller {
  	    $mdlAppOrigDirPath = $appOrigDirPath . $relAppDirPath;
  	    $mdlAppDestDirPath = $appDestDirPath . $relAppDirPath;
  	    
- 	    if (!is_dir($mdlAppOrigDirPath) || is_dir($mdlAppDestDirPath)) {
+ 	    if (!is_dir($mdlAppOrigDirPath)) {
  	        return;
  	    }
-	    
-	    if ($this->valDestDirPath($appDestDirPath, $package)) {
+ 	    if (!is_dir($mdlAppDestDirPath) && $this->valDestDirPath($appDestDirPath, $package)) {
 	        $this->filesystem->copyThenRemove($appOrigDirPath, $appDestDirPath);
 	    }
+ 	    
+ 	    try {
+ 	    	$this->filesystem->removeDirectory($this->getInstallPath($package));
+ 	    } catch (\RuntimeException $e) {}
+	    
 	}
 	
 	private function moveEtc(Package $package) {
