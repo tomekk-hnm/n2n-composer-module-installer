@@ -56,11 +56,11 @@ class ModuleInstaller extends LibraryInstaller {
     	$this->moveBackResources($package);
     	
     	if (!$this->isTmplPackage($package)) {
-	    	$moduleName = $this->getModuleName($package);
+    		$pattern = '/' . $this->getModuleName($package);
 	    	$this->removeFromGitIgnore($this->getVarDestDirPath() . DIRECTORY_SEPARATOR . self::ETC_DIR,
-	    			$moduleName);
+	    			$pattern);
 	    	$this->removeFromGitIgnore($this->getPublicDestDirPath() . DIRECTORY_SEPARATOR . self::ASSETS_DIR,
-	    			$moduleName);
+	    			$pattern);
     	}
 		
 		parent::uninstall($repo, $package);
@@ -216,7 +216,8 @@ class ModuleInstaller extends LibraryInstaller {
 		}
 		
 		if (!$this->isTmplPackage($package)) {
-			$this->addToGitIgnore($varDestDirPath . DIRECTORY_SEPARATOR . self::ETC_DIR, $this->getModuleName($package));
+			$this->addToGitIgnore($varDestDirPath . DIRECTORY_SEPARATOR . self::ETC_DIR, 
+					'/' . $this->getModuleName($package));
 		}
 	}
 	
@@ -241,7 +242,8 @@ class ModuleInstaller extends LibraryInstaller {
 		}
 		
 		if (!$this->isTmplPackage($package)) {
-			$this->addToGitIgnore($publicDestDirPath . DIRECTORY_SEPARATOR . self::ASSETS_DIR, $this->getModuleName($package));
+			$this->addToGitIgnore($publicDestDirPath . DIRECTORY_SEPARATOR . self::ASSETS_DIR, 
+					'/' . $this->getModuleName($package));
 		}
 	}
 	
