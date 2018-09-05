@@ -241,7 +241,7 @@ class ModuleInstaller extends LibraryInstaller {
 		}
 		
 		if (!$this->isTmplPackage($package)) {
-			$this->addToGitIgnore($mdlAssetsDestDirPath . DIRECTORY_SEPARATOR . self::ASSETS_DIR, $this->getModuleName($package));
+			$this->addToGitIgnore($publicDestDirPath . DIRECTORY_SEPARATOR . self::ASSETS_DIR, $this->getModuleName($package));
 		}
 	}
 	
@@ -295,7 +295,7 @@ class ModuleInstaller extends LibraryInstaller {
 			if (trim($content) == $pattern) return;
 		}
 		
-		$contents[] = PHP_EOL . $pattern;
+		$contents[] = (!empty($contents) ? PHP_EOL : '') . $pattern;
 		
 		
 		file_put_contents($filename, $contents);
