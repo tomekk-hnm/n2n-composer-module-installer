@@ -13,6 +13,15 @@ class ModuleInstaller extends LibraryInstaller {
 		return $packageType == self::N2N_MODULE_TYPE || $packageType == self::N2N_TMPL_MODULE_TYPE; 
 	}
 
+	
+	public function isInstalled(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
+		if (!$this->needsUpdate($package)) {
+			return false;
+		}
+		
+		return parent::isInstalled($repo, $package);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * @see \Composer\Installer\InstallerInterface::install()
@@ -104,11 +113,12 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	public function moveBackResources(Package $package) {
-		if ($package->getType() === self::N2N_TMPL_MODULE_TYPE) return;
+		if (!$this->needsUpdate($package)) return;
 		
 		$relEtcDirPath = $this->getRelEtcDirPath($package);
 		$mdlEtcOrigDirPath = $this->getVarOrigDirPath($package) . $relEtcDirPath;
 		$mdlEtcDestDirPath = $this->getVarDestDirPath() . $relEtcDirPath;
+		
 		if (is_dir($mdlEtcDestDirPath)) {
 			$this->filesystem->copyThenRemove($mdlEtcDestDirPath, $mdlEtcOrigDirPath);
 		}
@@ -122,7 +132,7 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	private function removeResources(Package $package) {
-		if ($package->getType() === self::N2N_TMPL_MODULE_TYPE) return;
+		if (!$this->needsUpdate($package)) return;
 		
 		$mdlEtcDestDirPath = $this->getVarDestDirPath() . $this->getRelEtcDirPath($package);
 		if (is_dir($mdlEtcDestDirPath)) {
@@ -143,10 +153,16 @@ class ModuleInstaller extends LibraryInstaller {
 		$this->moveEtc($package);
 		$this->moveAssets($package);
 		$this->moveApp($package);
+		
+		if ($this->isTmplPackage($package)) {
+			try {
+				$this->filesystem->removeDirectory($this->getInstallPath($package));
+			} catch (\RuntimeException $e) {}
+		}
 	}
 	
 	private function moveApp(Package $package) {
-		if ($package->getType() === self::N2N_MODULE_TYPE) return;
+		if (!$this->isTmplPackage($package)) return;
 		
  	    $appOrigDirPath = $this->getAppOrigDirPath($package);
  	    $appDestDirPath = $this->getAppDestDirPath();
@@ -163,14 +179,11 @@ class ModuleInstaller extends LibraryInstaller {
  	    if (!is_dir($mdlAppDestDirPath) && $this->valDestDirPath($appDestDirPath, $package)) {
 	        $this->filesystem->copyThenRemove($appOrigDirPath, $appDestDirPath);
 	    }
- 	    
- 	    try {
- 	    	$this->filesystem->removeDirectory($this->getInstallPath($package));
- 	    } catch (\RuntimeException $e) {}
-	    
 	}
 	
 	private function moveEtc(Package $package) {
+		if (!$this->needsUpdate($package)) return;
+		
 		$varOrigDirPath = $this->getVarOrigDirPath($package);
 		$varDestDirPath = $this->getVarDestDirPath();
 	
@@ -181,8 +194,7 @@ class ModuleInstaller extends LibraryInstaller {
 		$mdlEtcDestDirPath = $varDestDirPath . $relEtcDirPath;
 	
 		//don't move if etc folder exists and 
-		if (!is_dir($mdlEtcOrigDirPath) || 
-				($package->getType() === self::N2N_TMPL_MODULE_TYPE && is_dir($mdlEtcDestDirPath))) {
+		if (!is_dir($mdlEtcOrigDirPath)) {
 			return;
 		}
 	
@@ -192,6 +204,8 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	private function moveAssets(Package $package) {
+		if (!$this->needsUpdate($package)) return;
+		
 		$publicOrigDirPath = $this->getPublicOrigDirPath($package);
 		$publicDestDirPath = $this->getPublicDestDirPath();
 	
@@ -201,11 +215,7 @@ class ModuleInstaller extends LibraryInstaller {
 		$mdlAssetsOrigDirPath = $publicOrigDirPath . $relAssetsDirPath;
 		$mdlAssetsDestDirPath = $publicDestDirPath . $relAssetsDirPath;
 	
-		if (!is_dir($mdlAssetsOrigDirPath) 
-				|| ($package->getType() === self::N2N_TMPL_MODULE_TYPE && is_dir($mdlAssetsDestDirPath))) {
-			var_dump(!is_dir($mdlAssetsOrigDirPath));
-			var_dump($mdlAssetsDestDirPath);
-			var_dump($package->getType() === self::N2N_TMPL_MODULE_TYPE && is_dir($mdlAssetsDestDirPath));
+		if (!is_dir($mdlAssetsOrigDirPath)) {
 			return;
 		}
 	
@@ -234,6 +244,20 @@ class ModuleInstaller extends LibraryInstaller {
 	
 		throw new N2nModuleInstallationException('Failed to install ' . self::N2N_MODULE_TYPE . ' '
 				. $package->getPrettyName() . '. Reason: ' . $dirName . ' directory missing: ' . $destDirPath);
+	}
+	
+	private function needsUpdate(Package $package) {
+		if (!$this->isTmplPackage($package)) return true;
+		
+		return !$this->hasDestAppDirPath($package);
+	}
+	
+	private function hasDestAppDirPath(Package $package) {
+		return is_dir($this->getAppDestDirPath() . $this->getRelAppDirPath($package));
+	}
+	
+	private function isTmplPackage(Package $package) {
+		return $package->getType() === self::N2N_TMPL_MODULE_TYPE;
 	}
 	
 // 	private function copy($source, $target) {
