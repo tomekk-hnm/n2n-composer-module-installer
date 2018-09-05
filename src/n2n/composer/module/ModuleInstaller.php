@@ -203,6 +203,9 @@ class ModuleInstaller extends LibraryInstaller {
 	
 		if (!is_dir($mdlAssetsOrigDirPath) 
 				|| ($package->getType() === self::N2N_TMPL_MODULE_TYPE && is_dir($mdlAssetsDestDirPath))) {
+			var_dump(!is_dir($mdlAssetsOrigDirPath));
+			var_dump($mdlAssetsDestDirPath);
+			var_dump($package->getType() === self::N2N_TMPL_MODULE_TYPE && is_dir($mdlAssetsDestDirPath));
 			return;
 		}
 	
