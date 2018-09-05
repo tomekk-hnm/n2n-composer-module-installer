@@ -274,11 +274,11 @@ class ModuleInstaller extends LibraryInstaller {
 	private function needsUpdate(Package $package) {
 		if (!$this->isTmplPackage($package)) return true;
 		
-		return !$this->hasDestAppDirPath($package);
+		return !$this->hasDestEtcDirPath($package);
 	}
 	
-	private function hasDestAppDirPath(Package $package) {
-		return is_dir($this->getAppDestDirPath() . $this->getRelAppDirPath($package));
+	private function hasDestEtcDirPath(Package $package) {
+		return is_dir($this->getVarDestDirPath() . $this->getRelEtcDirPath($package));
 	}
 	
 	private function isTmplPackage(Package $package) {
