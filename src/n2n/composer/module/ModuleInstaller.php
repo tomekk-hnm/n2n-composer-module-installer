@@ -18,9 +18,10 @@ class ModuleInstaller extends LibraryInstaller {
 		if (!$this->needsUpdate($package)) {
 			return true;
 		}
-		
+
 		return parent::isInstalled($repo, $package);
 	}
+
 	
 	/**
 	 * {@inheritDoc}
@@ -39,7 +40,8 @@ class ModuleInstaller extends LibraryInstaller {
 	 */
 	public function update(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $initial, 
 			\Composer\Package\PackageInterface $target) {
-
+		if (!$this->needsUpdate($initial)) return;
+				
     	$this->moveBackResources($initial);
 				
 		parent::update($repo, $initial, $target);
