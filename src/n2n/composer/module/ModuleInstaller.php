@@ -133,18 +133,25 @@ class ModuleInstaller extends LibraryInstaller {
 	
 	private function removeResources(Package $package) {
 		if (!$this->needsUpdate($package)) return;
+		$moduleName = $this->getModuleName($package);
 		
 		$mdlEtcDestDirPath = $this->getVarDestDirPath() . $this->getRelEtcDirPath($package);
 		if (is_dir($mdlEtcDestDirPath)) {
 			try {
 				$this->filesystem->removeDirectory($mdlEtcDestDirPath);
+				$this->removeFromGitIgnore($this->getVarDestDirPath() . DIRECTORY_SEPARATOR . self::ETC_DIR, 
+						$moduleName);
 			} catch (\RuntimeException $e) {}
+			
 		}
+		
 		
 		$mdlAssetsDestDirPath = $this->getPublicDestDirPath() . $this->getRelAssetsDirPath($package);
 		if (is_dir($mdlAssetsDestDirPath)) {
 			try {
 				$this->filesystem->removeDirectory($mdlAssetsDestDirPath);
+				$this->removeFromGitIgnore($this->getPublicDestDirPath() . DIRECTORY_SEPARATOR . self::ASSETS_DIR, 
+						$moduleName);
 			} catch (\RuntimeException $e) {}	
 		}
 	}
@@ -203,7 +210,7 @@ class ModuleInstaller extends LibraryInstaller {
 		}
 		
 		if (!$this->isTmplPackage($package)) {
-			$this->checkGitIgnore($varDestDirPath . DIRECTORY_SEPARATOR . self::ETC_DIR, $this->getModuleName($package));
+			$this->addToGitIgnore($varDestDirPath . DIRECTORY_SEPARATOR . self::ETC_DIR, $this->getModuleName($package));
 		}
 	}
 	
@@ -228,7 +235,7 @@ class ModuleInstaller extends LibraryInstaller {
 		}
 		
 		if (!$this->isTmplPackage($package)) {
-			$this->checkGitIgnore($mdlAssetsDestDirPath . DIRECTORY_SEPARATOR . self::ASSETS_DIR, $this->getModuleName($package));
+			$this->addToGitIgnore($mdlAssetsDestDirPath . DIRECTORY_SEPARATOR . self::ASSETS_DIR, $this->getModuleName($package));
 		}
 	}
 	
@@ -268,7 +275,7 @@ class ModuleInstaller extends LibraryInstaller {
 		return $package->getType() === self::N2N_TMPL_MODULE_TYPE;
 	}
 	
-	private function checkGitIgnore($dirPath, $pattern) {
+	private function addToGitIgnore($dirPath, $pattern) {
 		if (!is_dir($dirPath)) return;
 		
 		$filename = $dirPath . DIRECTORY_SEPARATOR . '.gitignore';
@@ -284,6 +291,24 @@ class ModuleInstaller extends LibraryInstaller {
 		
 		$contents[] = PHP_EOL . $pattern;
 		
+		
+		file_put_contents($filename, $contents);
+	}
+	
+	private function removeFromGitIgnore($dirPath, $pattern) {
+		if (!is_dir($dirPath)) return;
+		
+		$filename = $dirPath . DIRECTORY_SEPARATOR . '.gitignore';
+		
+		$contents = [];
+		if (is_file($filename)) return;
+		
+		$newContents = [];
+		foreach ($contents as $content) {
+			if (trim($content) == $pattern) continue;
+			
+			$newContents[] = $content;
+		}
 		
 		file_put_contents($filename, $contents);
 	}
