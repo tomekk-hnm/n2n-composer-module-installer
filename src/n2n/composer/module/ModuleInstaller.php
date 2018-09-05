@@ -16,7 +16,7 @@ class ModuleInstaller extends LibraryInstaller {
 	
 	public function isInstalled(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
 		if (!$this->needsUpdate($package)) {
-			return false;
+			return true;
 		}
 		
 		return parent::isInstalled($repo, $package);
@@ -201,6 +201,10 @@ class ModuleInstaller extends LibraryInstaller {
 		if ($this->valDestDirPath($varDestDirPath, $package)) {
 			$this->filesystem->copyThenRemove($mdlEtcOrigDirPath, $mdlEtcDestDirPath);
 		}
+		
+		if (!$this->isTmplPackage($package)) {
+			$this->checkGitIgnore($varDestDirPath . DIRECTORY_SEPARATOR . self::ETC_DIR, $this->getModuleName($package));
+		}
 	}
 	
 	private function moveAssets(Package $package) {
@@ -221,6 +225,10 @@ class ModuleInstaller extends LibraryInstaller {
 	
 		if ($this->valDestDirPath($publicDestDirPath, $package)) {
 			$this->filesystem->copyThenRemove($mdlAssetsOrigDirPath, $mdlAssetsDestDirPath);
+		}
+		
+		if (!$this->isTmplPackage($package)) {
+			$this->checkGitIgnore($mdlAssetsDestDirPath . DIRECTORY_SEPARATOR . self::ASSETS_DIR, $this->getModuleName($package));
 		}
 	}
 	
@@ -258,6 +266,26 @@ class ModuleInstaller extends LibraryInstaller {
 	
 	private function isTmplPackage(Package $package) {
 		return $package->getType() === self::N2N_TMPL_MODULE_TYPE;
+	}
+	
+	private function checkGitIgnore($dirPath, $pattern) {
+		if (!is_dir($dirPath)) return;
+		
+		$filename = $dirPath . DIRECTORY_SEPARATOR . '.gitignore';
+		
+		$contents = [];
+		if (is_file($filename)) {
+			$contents = file($filename);
+		}
+		
+		foreach ($contents as $content) {
+			if (trim($content) == $pattern) return;
+		}
+		
+		$contents[] = PHP_EOL . $pattern;
+		
+		
+		file_put_contents($filename, $contents);
 	}
 	
 // 	private function copy($source, $target) {
