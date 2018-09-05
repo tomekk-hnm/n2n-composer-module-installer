@@ -54,6 +54,14 @@ class ModuleInstaller extends LibraryInstaller {
 	 */
 	public function uninstall(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
     	$this->moveBackResources($package);
+    	
+    	if (!$this->isTmplPackage($package)) {
+	    	$moduleName = $this->getModuleName($package);
+	    	$this->removeFromGitIgnore($this->getVarDestDirPath() . DIRECTORY_SEPARATOR . self::ETC_DIR,
+	    			$moduleName);
+	    	$this->removeFromGitIgnore($this->getPublicDestDirPath() . DIRECTORY_SEPARATOR . self::ASSETS_DIR,
+	    			$moduleName);
+    	}
 		
 		parent::uninstall($repo, $package);
 	}
@@ -142,9 +150,7 @@ class ModuleInstaller extends LibraryInstaller {
 				$this->removeFromGitIgnore($this->getVarDestDirPath() . DIRECTORY_SEPARATOR . self::ETC_DIR, 
 						$moduleName);
 			} catch (\RuntimeException $e) {}
-			
 		}
-		
 		
 		$mdlAssetsDestDirPath = $this->getPublicDestDirPath() . $this->getRelAssetsDirPath($package);
 		if (is_dir($mdlAssetsDestDirPath)) {
