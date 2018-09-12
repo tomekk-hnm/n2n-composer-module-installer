@@ -4,7 +4,7 @@
     "description": "n2n module installer plugin for composer",
     "keywords": ["n2n", "module", "installer"],
     "homepage": "http://n2n.rocks/",
-    "license": "GNU LGPL",
+    "license": "LGPL-3.0-or-later",
     "authors": [
         {
             "name": "Andreas von Burg",
