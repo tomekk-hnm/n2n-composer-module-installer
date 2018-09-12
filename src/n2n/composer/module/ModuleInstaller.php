@@ -165,9 +165,9 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	private function installResources(Package $package) {
-		$this->moveEtc($package);
-		$this->moveAssets($package);
 		$this->moveApp($package);
+		$this->moveAssets($package);
+		$this->moveEtc($package);
 		
 		if ($this->isTmplPackage($package)) {
 			try {
@@ -177,7 +177,7 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	private function moveApp(Package $package) {
-		if (!$this->isTmplPackage($package)) return;
+		if (!$this->needsUpdate($package)) return;
 		
  	    $appOrigDirPath = $this->getAppOrigDirPath($package);
  	    $appDestDirPath = $this->getAppDestDirPath();
@@ -239,7 +239,7 @@ class ModuleInstaller extends LibraryInstaller {
 			return;
 		}
 	
-		if ($this->valDestDirPath($publicDestDirPath, $package)) {
+		if (!is_dir($mdlAssetsDestDirPath) && $this->valDestDirPath($publicDestDirPath, $package)) {
 			$this->filesystem->copyThenRemove($mdlAssetsOrigDirPath, $mdlAssetsDestDirPath);
 		}
 		
