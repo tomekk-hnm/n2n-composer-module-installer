@@ -177,7 +177,7 @@ class ModuleInstaller extends LibraryInstaller {
 	}
 	
 	private function moveApp(Package $package) {
-		if (!$this->needsUpdate($package)) return;
+		if (!$this->isTmplPackage($package) || $this->hasDestEtcDirPath($package)) return;
 		
  	    $appOrigDirPath = $this->getAppOrigDirPath($package);
  	    $appDestDirPath = $this->getAppDestDirPath();
