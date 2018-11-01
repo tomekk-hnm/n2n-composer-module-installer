@@ -40,7 +40,14 @@ class ModuleInstaller extends LibraryInstaller {
 	 */
 	public function update(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $initial, 
 			\Composer\Package\PackageInterface $target) {
-		if (!$this->needsUpdate($initial)) return;
+		if (!$this->needsUpdate($initial)) {
+			//add the new version of the module to the composer.lock
+			$repo->removePackage($initial);
+			if (!$repo->hasPackage($target)) {
+				$repo->addPackage(clone $target);
+			}
+			return;
+		}
 				
     	$this->moveBackResources($initial);
 				
