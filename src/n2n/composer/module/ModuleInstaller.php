@@ -199,7 +199,7 @@ class ModuleInstaller extends LibraryInstaller {
  	        return;
  	    }
  	    if (!is_dir($mdlAppDestDirPath) && $this->valDestDirPath($appDestDirPath, $package)) {
-	        $this->filesystem->copyThenRemove($appOrigDirPath, $appDestDirPath);
+ 	    	$this->filesystem->copyThenRemove($mdlAppOrigDirPath, $mdlAppDestDirPath);
 	    }
 	}
 	
